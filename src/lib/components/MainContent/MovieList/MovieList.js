@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useReducer } from 'react';
-import { SafeAreaView } from 'react-native';
-import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Image, StyleSheet, RefreshControl } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { SafeAreaView, Text } from 'react-native';
+import { FlatList, ActivityIndicator, StyleSheet, RefreshControl } from 'react-native';
 import { apiKey } from '../../../constants/API';
 import { RenderMovie } from '../../MovieItem';
 
-const MovieList = ({ dataUrl, route }) => {
-    const { renderMovieItem } = RenderMovie();
+const MovieList = ({ dataUrl }) => {
 
+    const { renderMovieItem } = RenderMovie();
     const [movies, setMovies] = useState([]);
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
@@ -16,7 +16,6 @@ const MovieList = ({ dataUrl, route }) => {
 
     useEffect(() => {
         setMovies([]);
-        console.log("dataUrl changed to:", dataUrl);
         setPage(1);
         fetchMovies()
     }, [dataUrl]);
@@ -45,6 +44,7 @@ const MovieList = ({ dataUrl, route }) => {
         setPage(1);
         fetchMovies();
     }, []);
+
     const handleRefresh = () => {
         setRefreshing(true);
         setMovies([]);
@@ -75,21 +75,32 @@ const MovieList = ({ dataUrl, route }) => {
 
 
     return (
-        <SafeAreaView><FlatList
-            data={movies}
-            renderItem={renderMovieItem}
-            keyExtractor={item => item.original_title}
-            onEndReached={handleEndReached}
-            onEndReachedThreshold={0}
-            ListFooterComponent={renderFooter}
-            contentContainerStyle={styles.container}
-            numColumns={4}
-            refreshControl={
-                <RefreshControl refreshing={refreshing} style={{
+        <SafeAreaView>
 
-                }} onRefresh={handleRefresh} />
-            }
-        /></SafeAreaView>
+            <FlatList
+                data={movies}
+                renderItem={renderMovieItem}
+                keyExtractor={item => item.original_title}
+                onEndReached={handleEndReached}
+                onEndReachedThreshold={0}
+                ListFooterComponent={renderFooter}
+                contentContainerStyle={styles.container}
+                numColumns={4}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} style={{
+
+                    }} onRefresh={handleRefresh} />
+                }
+            />
+
+            {error && <Text style={{
+                color: 'white'
+            }} >An error occurred. Pull down to refresh.</Text>}
+
+            {!loading && movies.length === 0 && <Text style={{
+                color: 'white'
+            }} >No movies currently.</Text>}
+        </SafeAreaView>
 
 
     );
@@ -101,6 +112,5 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         width: '100%',
         paddingHorizontal: 5,
-        marginTop: 110
     },
 });

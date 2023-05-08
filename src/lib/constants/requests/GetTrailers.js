@@ -21,12 +21,7 @@ export const useTrailerData = (id) => {
                         console.debug(error);
                         setError(error + "\nPull down to refresh")
                     });
-
-
-
-
                 setLoading(false);
-
             } catch (error) {
                 console.debug(error);
                 setError(error + "\nPull down to refresh")
@@ -35,8 +30,6 @@ export const useTrailerData = (id) => {
         }
         fetchData()
     }, [])
-
-
     return { loading, videoData, error };
 };
 

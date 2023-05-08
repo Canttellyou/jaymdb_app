@@ -1,27 +1,46 @@
 import React, { useEffect, useState } from 'react';
-import { View, Alert, LogBox } from 'react-native';
+import { View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useToast } from 'react-native-toast-notifications';
 import { RenderMovie } from './MovieItem';
 import { FlatList } from 'react-native';
-import { useHeader } from './Header';
 import { globalColors } from '../constants/colors';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { TouchableOpacity } from 'react-native';
+import SearchButton from './SearchButton';
 
 
 export function WatchList(props) {
     const { watchList, setWatchList } = useWatchPlaylist();
     const { renderMovieItem } = RenderMovie();
-    const { Header } = useHeader();
+    const navigation = useNavigation();
+
+
+
     return (
         <View style={{
             backgroundColor: globalColors.backgroundColor,
             flex: 1,
+            width: '100%',
         }}>
-            <Header />
             <View style={{
-                marginTop: 120
-            }} >
+                width: '100%',
+                paddingVertical: 10,
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: globalColors.backgroundColor,
+                marginTop: 35,
+                paddingHorizontal: 10
+            }}>
+                <TouchableOpacity activeOpacity={1} onPress={() => navigation.goBack()}>
+                    <Ionicons name="arrow-back" size={28} color="white" />
+                </TouchableOpacity>
+                <SearchButton />
+
+            </View>
+            <View  >
                 <FlatList
                     data={watchList}
                     renderItem={renderMovieItem}

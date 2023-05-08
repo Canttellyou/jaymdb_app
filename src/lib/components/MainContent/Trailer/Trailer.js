@@ -1,5 +1,4 @@
-import { View, FlatList, ActivityIndicator, ScrollView, Dimensions, BackHandler, StatusBar } from 'react-native';
-import React, { useEffect, useRef } from 'react';
+import { View, ActivityIndicator, BackHandler, StatusBar } from 'react-native';
 import YoutubePlayer from 'react-native-youtube-iframe';
 
 
@@ -8,27 +7,33 @@ import { useTrailerData } from '../../../constants/requests/GetTrailers';
 import { Text } from 'react-native';
 import { globalColors } from '../../../constants/colors';
 import * as ScreenOrientation from "expo-screen-orientation";
+import { useNavigation } from '@react-navigation/native';
+import { useEffect } from 'react';
 
 
 export default function Trailer({ route }) {
     let TrailersID = route.params.movieTrailersId;
+    const navigation = useNavigation()
 
     const { loading, videoData, error } = useTrailerData(TrailersID);
-
+    //Device is in portrait mode, rotate to landscape mode.
     function setOrientation() {
-        //Device is in portrait mode, rotate to landscape mode.
         ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-
-
     }
-    BackHandler.addEventListener('hardwareBackPress', function () {
-        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
-    });
 
+    useEffect(() => {
+        const handleBackButtoner = () => {
+            ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+            navigation.goBack();
+            return true
+        };
 
+        BackHandler.addEventListener('hardwareBackPress', handleBackButtoner);
 
-
-
+        return () => {
+            BackHandler.removeEventListener('hardwareBackPress', handleBackButtoner);
+        };
+    }, []);
 
     return (
         <NowPlayingStyle
@@ -72,7 +77,9 @@ export default function Trailer({ route }) {
 
                 />
             }
-            {error && <Text>{error}</Text>}
+            {error && <Text style={{
+                color: 'white'
+            }}>An error occurred</Text>}
         </NowPlayingStyle>
     )
 }

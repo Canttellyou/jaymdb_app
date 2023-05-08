@@ -44,7 +44,7 @@ export default function SearchPage() {
                 flexDirection: 'row',
                 gap: 5
             }}>
-                <TouchableOpacity activeOpacity={1} onPress={() => navigation.goBack()} style={{
+                <TouchableOpacity activeOpacity={1} onPress={() => navigation.push("Home")} style={{
                     marginTop: 8
                 }}>
                     <Ionicons name="arrow-back" size={28} color="white" />

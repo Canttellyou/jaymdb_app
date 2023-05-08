@@ -23,9 +23,5 @@ export function useGenre() {
         }
         fetchData();
     }, [])
-
-
     return { genres }
 }
-
-const styles = StyleSheet.create({})

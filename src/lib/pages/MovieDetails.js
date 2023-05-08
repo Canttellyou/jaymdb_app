@@ -1,13 +1,13 @@
-import { Image, Linking, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Linking, Text, View } from 'react-native';
 import { MaterialIcons, Feather, Entypo, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components/native';
 import { globalColors } from '../constants/colors';
 import { useGenre } from '../constants/requests/Genre';
 import { useMovieDetails } from '../constants/requests/GetMovieDetails';
 import { TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useWatchPlaylist } from '../components/Watchlist';
 import { RenderMovie } from '../components/MovieItem';
 import useSimilarMovies from '../constants/requests/GetSimilarMovies';
@@ -15,19 +15,81 @@ import { FlatList } from 'react-native';
 import { ScrollView } from 'react-native';
 import useRecommended from '../constants/requests/GetRecommended';
 import SearchButton from '../components/SearchButton';
-import { SafeAreaView } from 'react-native';
+import { BackHandler } from 'react-native';
 
+const SimilarMovies = ({ id }) => {
+    const { renderMovieItem } = RenderMovie();
+    const { similarMovies, error, loading } = useSimilarMovies(id);
+    return (
+        <View>
+            {loading && <ActivityIndicator
+                style={{ marginVertical: 20 }}
+                size="large"
+                color="grey"
+            />}
+            {
+                similarMovies && !loading && similarMovies.length != 0 && (<FlatList
+                    data={similarMovies}
+                    renderItem={renderMovieItem}
+                    horizontal={true}
+                    keyExtractor={item => item.original_title}
+                />)
+            }
+
+            {
+                error && <Text style={{
+                    color: 'white'
+                }}>
+                    {error}
+                </Text>
+            }
+            {similarMovies && !loading && similarMovies.length === 0 && <Text style={{
+                color: "#c5c5c5"
+            }}>No recommendations</Text>}
+        </View>
+    );
+}
+const RecommendedMovies = ({ id }) => {
+    const { renderMovieItem } = RenderMovie();
+    const { recommendedMovies, error, loading } = useRecommended(id);
+    return (
+        <View>
+            {loading && <ActivityIndicator
+                style={{ marginVertical: 20 }}
+                size="large"
+                color="grey"
+            />}
+            {
+                recommendedMovies && recommendedMovies.length != 0 && (<FlatList
+                    data={recommendedMovies}
+                    renderItem={renderMovieItem}
+                    horizontal={true}
+                    keyExtractor={item => item.original_title}
+                />)
+            }
+            {
+                error && <Text style={{
+                    color: 'white'
+                }}>
+                    {error}
+                </Text>
+            }
+            {recommendedMovies && !loading && recommendedMovies.length === 0 && <Text style={{
+                color: "#c5c5c5"
+            }}>No recommendations</Text>}
+        </View>
+
+    );
+}
 export default function MovieDetails({ route }) {
+
     let movieDetails = route.params.movieDetails;
     const { genres } = useGenre();
     const { movieExtraDetails } = useMovieDetails(movieDetails.id);
-    console.log('Details', movieExtraDetails);
-    console.log(movieDetails);
     const genreNames = genres.filter(genre => movieDetails.genre_ids.includes(genre.id)).map(genre => genre.name);
     const navigation = useNavigation();
+    const router = useRoute();
     const { watchList, addToWatchLater } = useWatchPlaylist();
-    const { renderMovieItem } = RenderMovie();
-    console.log(watchList);
     function toggleAdded(item) {
         if (watchList.some(favorite => favorite.original_title === item.original_title)) {
             return true
@@ -35,42 +97,19 @@ export default function MovieDetails({ route }) {
             return false
         }
     }
+    useEffect(() => {
+        const handleBackButton = () => {
+            navigation.push('Home');
+            return true;
+        };
 
-    const SimilarMovies = () => {
-        const { similarMovies, setSimilarMovies, error } = useSimilarMovies(movieDetails.id);
-        return (
-            <View>
-                {
-                    similarMovies && similarMovies.length != 0 ? (<FlatList
-                        data={similarMovies}
-                        renderItem={renderMovieItem}
-                        horizontal={true}
-                        keyExtractor={item => item.original_title}
-                    />) : <Text style={{
-                        color: "#c5c5c5"
-                    }} >No similar movies</Text>
-                }
-            </View>
-        );
-    }
-    const RecommendedMovies = () => {
-        const { recommendedMovies, setRecommendedMovies, error } = useRecommended(movieDetails.id);
-        return (
-            <View>
-                {
-                    recommendedMovies && recommendedMovies.length != 0 ? (<FlatList
-                        data={recommendedMovies}
-                        renderItem={renderMovieItem}
-                        horizontal={true}
-                        keyExtractor={item => item.original_title}
-                    />) : <Text style={{
-                        color: "#c5c5c5"
-                    }}>No recommendations</Text>
-                }
-            </View>
+        BackHandler.addEventListener('hardwareBackPress', handleBackButton);
 
-        );
-    }
+        return () => {
+            BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+        };
+    }, []);
+
 
     return (
         <MovieDetailsStyle>
@@ -81,7 +120,7 @@ export default function MovieDetails({ route }) {
                 alignItems: 'center',
                 backgroundColor: globalColors.backgroundColor
             }}>
-                <TouchableOpacity activeOpacity={1} onPress={() => navigation.goBack()}>
+                <TouchableOpacity activeOpacity={1} onPress={() => navigation.push("Home")}>
                     <Ionicons name="arrow-back" size={28} color="white" />
                 </TouchableOpacity>
                 <SearchButton />
@@ -112,7 +151,6 @@ export default function MovieDetails({ route }) {
                 <View style={
                     {
                         paddingTop: 12,
-
                     }
                 }>
                     <TextWhite style={{
@@ -152,7 +190,6 @@ export default function MovieDetails({ route }) {
                         {/* Genres --End */}
                         <View style={{
                             flexDirection: 'row',
-                            // width: '45%',
                             justifyContent: 'space-between',
                             alignItems: 'center',
                             marginVertical: 3
@@ -167,7 +204,7 @@ export default function MovieDetails({ route }) {
                                 <MaterialIcons name="star-border" size={24} color="#c5c5c5" />
                                 <TextWhite style={{
                                     color: "#c5c5c5"
-                                }}>{movieDetails.vote_average}</TextWhite>
+                                }}>{parseFloat(movieDetails.vote_average).toFixed(1)}</TextWhite>
                             </View>
                             <View
                                 style={{
@@ -235,9 +272,9 @@ export default function MovieDetails({ route }) {
                     >
                         <Entypo name="bookmarks" size={24} color={toggleAdded(movieDetails) === true ? "#fff" : "#898989"} />
                         <Text style={{
-                            color: toggleAdded(movieDetails) === true ? "#fff" : "#898989"
+                            color: "#fff"
                         }}>
-                            Watchlist
+                            {toggleAdded(movieDetails) === true ? "Remove from Watchlist" : "Add to Watchlist"}
                         </Text>
                     </TouchableOpacity>
                 </View>
@@ -256,7 +293,7 @@ export default function MovieDetails({ route }) {
                         fontSize: 16,
                         marginTop: 10
                     }} >Similar Movies</TextWhite>
-                    <SimilarMovies />
+                    <SimilarMovies id={movieDetails.id} />
                 </View>
 
 
@@ -266,7 +303,7 @@ export default function MovieDetails({ route }) {
                         fontSize: 16,
                         marginTop: 10
                     }} >Recommendations</TextWhite>
-                    <RecommendedMovies />
+                    <RecommendedMovies id={movieDetails.id} />
                 </View>
             </ScrollView>
 

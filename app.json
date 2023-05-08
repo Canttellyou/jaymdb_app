@@ -9,7 +9,7 @@
     "splash": {
       "image": "./src/assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#373B69"
+      "backgroundColor": "#101010"
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
@@ -18,12 +18,18 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/adaptive-icon.png",
-        "backgroundColor": "#373B69"
+        "backgroundColor": "#101010"
       },
-      "permissions": ["SYSTEM_ALERT_WINDOW"]
+      "permissions": ["SYSTEM_ALERT_WINDOW"],
+      "package": "com.jaydevsoft.MoviesDB"
     },
     "web": {
       "favicon": "./src/assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ca5dd44c-6880-4619-9e0e-70810c17f5a1"
+      }
     }
   }
 }

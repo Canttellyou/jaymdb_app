@@ -4,11 +4,8 @@ import styled from 'styled-components/native';
 import AppLoading from 'expo-app-loading';
 import { useFontsComponent } from '../constants/useFontsComponent';
 import { useHeader } from '../components/Header';
-import MovieList from '../components/MainContent/Popular/Popular';
+import MovieList from '../components/MainContent/MovieList/MovieList';
 import { globalColors } from '../constants/colors';
-
-
-
 
 export default function Homepage() {
     const { sortBy, Header } = useHeader();

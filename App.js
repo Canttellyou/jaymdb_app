@@ -2,13 +2,18 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
-import MovieList from "./src/lib/components/MainContent/Popular/Popular";
+import MovieList from "./src/lib/components/MainContent/MovieList/MovieList";
 import Trailer from "./src/lib/components/MainContent/Trailer/Trailer";
 import Homepage from "./src/lib/pages/Homepage";
 import MovieDetails from "./src/lib/pages/MovieDetails";
 import { ToastProvider } from 'react-native-toast-notifications'
 import SearchPage from "./src/lib/pages/SearchPage";
 import { WatchList } from "./src/lib/components/Watchlist";
+import { LogBox } from 'react-native';
+// Disable all yellow box warnings
+LogBox.ignoreLogs(['expo-app-loading is deprecated in favor of expo-splash-screen']);
+LogBox.ignoreLogs(['Encountered two children with the same key']);
+
 
 const Stack = createNativeStackNavigator();
 export default function App() {
